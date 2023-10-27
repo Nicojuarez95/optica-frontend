@@ -1,10 +1,11 @@
 import React from 'react'
 import "./login.css"
 import 'tailwindcss/tailwind.css';
+import { Link as Anchor } from 'react-router-dom'
 
 export default function Login() {
   return (
-    <section class="flex justify-center items-center mt-12">	
+    <section class="flex justify-center items-center" id='body'>	
       <main class="w-11/12 md:max-w-5xl mx-auto grid md:grid-cols-2 rounded">
         <div class="bg-pizza w-full h-72 md:h-auto">
           
@@ -18,7 +19,7 @@ export default function Login() {
                 </svg>
                 
             </span>
-            <h1 class="text-center text-slate-900 font-bold text-2xl">Login</h1>
+            <h1 class="text-center text-slate-900 font-bold text-2xl">Logeo</h1>
           </div>
           <p class="text-slate-500 text-center text-sm mt-2">Si ya tenés una cuenta, iniciá sesión y disfrutá de la mejor comida en la puerta de tu casa</p>
 
@@ -41,7 +42,7 @@ export default function Login() {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
                 
-              <a href="">Registrate</a>
+                <Anchor to={'/register'}>Registrarse</Anchor>
             </span>
           </p>
         </div>

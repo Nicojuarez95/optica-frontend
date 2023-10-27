@@ -1,14 +1,14 @@
-import Login from "../src/Pages/Login/Login.jsx"
-import Register from "../src/Pages/Register/Register.jsx"
+import { RouterProvider } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { router } from './Pages/index.js'
+import { store } from './store/store.js'
 
 function App() {
-  return (
-    <>
-      <Login/>
-      <Register/>
-    </>
-    
-  );
+    return (
+      <Provider store={store}>
+          <RouterProvider router={router}/>
+      </Provider>
+    );
 }
 
 export default App;
