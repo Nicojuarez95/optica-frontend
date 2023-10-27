@@ -1,5 +1,5 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.bg-pizza{
+    background-image: linear-gradient(to right, rgba(0 0 0 / .5) 0%, rgba(0 0 0 / .5) 100%), url(../../Img/pizza.jpg);
+    background-size: cover;
+    background-position: center;
 }
