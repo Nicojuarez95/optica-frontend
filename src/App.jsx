@@ -1,8 +1,11 @@
+import Login from "../src/Pages/Login/Login.jsx"
+
 function App() {
   return (
-    <div className="App">
-     <h1>HOLA</h1>
-    </div>
+    <>
+      <Login/>
+    </>
+    
   );
 }
 
