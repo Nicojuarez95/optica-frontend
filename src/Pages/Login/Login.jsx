@@ -30,7 +30,6 @@ export default function Login() {
               <label for="password" class="block font-bold text-slate-900">Contraseña</label>
               <input type="password" name="password" id="password" class="w-full bg-gray-100 p-2 mt-1 border-l-4 border-red-400 focus:outline-none" placeholder="Tu contraseña"/>
             </div>
-
             <input type="submit" class="w-full bg-red-400 rounded text-white py-2 mt-2" value="Iniciar sesión"/>
           </form>
 
