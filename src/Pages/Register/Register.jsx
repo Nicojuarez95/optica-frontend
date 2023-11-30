@@ -8,7 +8,6 @@ export default function Register() {
     <section class="flex justify-center items-center" id='body'>	
       <main class="w-11/12 md:max-w-5xl mx-auto grid md:grid-cols-2 rounded">
         <div class="bg-pizza w-full h-72 md:h-auto">
-          
         </div>
 
         <div class="p-8 bg-white">
