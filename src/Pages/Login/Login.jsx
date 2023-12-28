@@ -9,6 +9,7 @@ export default function Login() {
       <main class="w-11/12 md:max-w-5xl mx-auto grid md:grid-cols-2 rounded">
         <div class="bg-pizza w-full h-72 md:h-auto">
         </div>
+
         
         <div class="p-8 bg-white">
           <div class="flex gap-1 items-center justify-center">
