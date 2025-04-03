@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Login from "../../Components/Login/login";
 
 Modal.setAppElement("#root");
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [recibo, setRecibo] = useState({ reciboDe: "", suma: "", concepto: "" });
   const [remito, setRemito] = useState([{ articulo: "", cantidad: "", descripcion: "" }]);
@@ -30,6 +32,21 @@ export default function Home() {
       prevRemito.map((item, i) => (i === index ? { ...item, [name]: value } : item))
     );
   };
+  useEffect(() => {
+    const savedNumero = localStorage.getItem("presupuestoNumero");
+    if (savedNumero) {
+      setPresupuestoNumero(parseInt(savedNumero, 10));
+    }
+  }, [isAuthenticated]); // Se ejecuta cuando el usuario inicia sesión
+
+  // ✅ Guardar cada vez que cambia
+  useEffect(() => {
+    localStorage.setItem("presupuestoNumero", presupuestoNumero);
+  }, [presupuestoNumero]);
+  
+  useEffect(() => {
+    localStorage.setItem("presupuestoNumero", presupuestoNumero);
+  }, [presupuestoNumero]);
 
   const handlePresupuestoChange = (index, e) => {
     const { name, value } = e.target;
@@ -136,6 +153,7 @@ export default function Home() {
   };
   return (
     <div className="home flex flex-col items-center p-6 bg-gray-100 min-h-screen">
+      
   <h1 className="text-3xl font-bold mb-6 text-gray-800">Generar Documentos</h1>
 
   <div className="flex gap-4">
@@ -234,5 +252,6 @@ export default function Home() {
     </div>
   </Modal>
 </div>
+
   );
 }
