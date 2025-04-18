@@ -40,7 +40,7 @@ export default function Login ({ onLogin }) {
             width: "300px",
           }}
         >
-          <h2 style={{ marginBottom: "20px", color: "#333" }}>Iniciá Sesión Gino</h2>
+          <h2 style={{ marginBottom: "20px", color: "#333" }}>Iniciár Sesión como Gino</h2>
       
           <input
             type="text"
