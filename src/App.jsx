@@ -1,7 +1,7 @@
 import { RouterProvider } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { router } from './Pages/index.js'
-import { store } from './store/store.js'
+import { Provider } from 'react-redux'; // De react-redux
+import { router } from './Pages/index.js'; // Asegúrate que esta ruta sea correcta
+import { store } from './store/store.js';
 
 function App() {
     return (
@@ -10,5 +10,4 @@ function App() {
       </Provider>
     );
 }
-
 export default App;
