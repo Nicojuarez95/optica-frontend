@@ -13,7 +13,7 @@ import {
 import FormularioPaciente from './FormularioPaciente';
 import DetallePaciente from './DetallePaciente';
 import Spinner from '../Common/Spinner';
-import Modal from '../Common/Modal';
+import Modal from '../Common/ModalControlado.jsx';
 import { PlusCircle, UserSearch, Edit3, Trash2, UserX, Eye as ViewIcon, AlertTriangle, Users as UsersIcon } from 'lucide-react';
 
 export default function GestionPacientes() {

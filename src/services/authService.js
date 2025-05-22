@@ -1,4 +1,4 @@
-import apiClient from './api';
+import { apiClient } from './api';
 
 const register = async (name, email, password) => {
   const response = await apiClient.post('/users/register', { name, email, password });

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { X, Edit3, PlusCircle, ChevronDown, ChevronUp, FileText, CalendarDays, Phone, Mail, MapPin, Briefcase, Stethoscope, StickyNote } from 'lucide-react';
 import { addNewPrescripcion } from '../../store/slices/pacienteSlice';
 import Spinner from '../Common/Spinner';
-import Modal from '../Common/Modal'; // Para el formulario de nueva prescripción
+import Modal from '../Common/ModalControlado'; // Para el formulario de nueva prescripción
 
 const InfoItem = ({ icon, label, value, isBlock = false }) => (
   <div className={`flex items-start ${isBlock ? 'flex-col items-start w-full' : 'mb-2'}`}>

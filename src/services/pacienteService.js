@@ -1,4 +1,4 @@
-import apiClient from './api'; // Asegúrate de que api.js exista en src/services/
+import { apiClient } from './api'; // Asegúrate de que api.js exista en src/services/
 
 const getPacientes = async () => {
   try {

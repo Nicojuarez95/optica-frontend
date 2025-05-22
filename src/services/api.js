@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { store } from '../store/store'; // Para acceder al token
+// Para evitar dependencias circulares directas con el store en este archivo base,
+// es mejor obtener el token de localStorage aquí si es posible,
+// o asegurar que la importación del store no cause problemas.
+// La forma más segura es leer de localStorage en el interceptor.
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL, // http://localhost:8000/api
@@ -11,7 +14,8 @@ const apiClient = axios.create({
 // Interceptor para añadir el token a las peticiones
 apiClient.interceptors.request.use(
   (config) => {
-    const token = store.getState().auth.token; // Obtener token del estado de Redux
+    // Obtener token desde localStorage para evitar dependencia directa del store aquí
+    const token = localStorage.getItem('optisysToken'); // Asegúrate que la key 'optisysToken' sea la correcta
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -28,10 +32,12 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Podrías despachar una acción de logout aquí si el token es inválido/expiró
+      // Esto requeriría una forma de acceder al store sin causar un ciclo,
+      // o manejar la redirección de otra manera (ej. un evento).
+      // import { store } from '../store/store'; // Cuidado con esta importación aquí
       // import { logout } from '../store/slices/authSlice';
       // store.dispatch(logout());
-      // O simplemente redirigir a login
-      // window.location.href = '/login';
+      // window.location.href = '/login'; // Redirección forzada como último recurso
       console.error("Error 401: No autorizado. El token puede ser inválido o haber expirado.");
     }
     // Extraer el mensaje de error del backend si está disponible
@@ -41,4 +47,5 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient;
+
+export { apiClient };    
