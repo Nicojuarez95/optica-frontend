@@ -60,7 +60,7 @@ export default function MainLayout() {
         <div>
           <div className="flex items-center justify-center h-20 border-b border-gray-700 dark:border-slate-700">
             <AppIcon size={32} className="text-indigo-400 mr-2" />
-            <span className="text-2xl font-bold text-white">OptiSys</span>
+            <span className="text-2xl font-bold text-white">LUMINA</span>
           </div>
           <nav className="mt-6 px-3 space-y-2">
             <SidebarLink to="/dashboard/home" icon={<LayoutDashboard />} onClick={closeSidebar}>Dashboard</SidebarLink>

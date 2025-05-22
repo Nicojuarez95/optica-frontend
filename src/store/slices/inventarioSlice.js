@@ -6,6 +6,17 @@ const initialState = {
   // itemSeleccionado: null, // Podrías añadir esto si necesitas un panel de detalle para items
   isLoading: false,
   error: null,
+  currentItem: null,
+  // loading: 'idle', // Puede ser 'idle' | 'loading_list' | 'loading_item' | 'saving_item'
+  loadingList: 'idle', // Para fetchInventario
+  loadingItemDetail: 'idle', // Para fetchSingleInventarioItem
+  savingItem: 'idle', // Para add/update/delete
+  errorList: null,
+  errorItemDetail: null,
+  errorSavingItem: null,
+  itemsStockBajo: [], // Aquí guardaremos los ítems con stock bajo
+  isLoadingStockBajo: false, // Estado de carga específico para este widget
+  errorStockBajo: null, 
 };
 
 // Thunks Asíncronos
@@ -15,6 +26,20 @@ export const fetchInventario = createAsyncThunk(
     try {
       const data = await inventarioService.getInventario(filtros);
       return data; // El servicio devuelve el array de items directamente
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+// --- NUEVO: Thunk para obtener ítems con stock bajo para el dashboard ---
+export const fetchItemsStockBajoDashboard = createAsyncThunk(
+  'inventario/fetchItemsStockBajoDashboard',
+  async (filtrosDashboard = { alertaStock: true, limite: 5 }, { rejectWithValue }) => {
+    // `alertaStock: true` es una sugerencia de parámetro que tu backend debería reconocer.
+    // `limite: 5` para obtener, por ejemplo, los 5 ítems más críticos.
+    try {
+      const data = await inventarioService.getInventario(filtrosDashboard);
+      return data; // El servicio devuelve el array de items que cumplen el filtro
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -63,6 +88,10 @@ const inventarioSlice = createSlice({
   reducers: {
     clearInventarioError: (state) => {
       state.error = null;
+       state.errorList = null;
+      state.errorItemDetail = null;
+      state.errorSavingItem = null;
+      state.errorStockBajo = null;
     },
     // seleccionarItem: (state, action) => { state.itemSeleccionado = action.payload; },
     // limpiarItemSeleccionado: (state) => { state.itemSeleccionado = null; },
@@ -72,6 +101,10 @@ const inventarioSlice = createSlice({
       .addCase(fetchInventario.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+      })
+      .addCase(fetchItemsStockBajoDashboard.fulfilled, (state, action) => {
+        state.isLoadingStockBajo = false;
+        state.itemsStockBajo = action.payload.sort((a, b) => a.stockActual - b.stockActual); 
       })
       .addCase(fetchInventario.fulfilled, (state, action) => {
         state.isLoading = false;

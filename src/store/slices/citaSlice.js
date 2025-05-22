@@ -5,7 +5,24 @@ const initialState = {
   citas: [],
   isLoading: false,
   error: null,
+  citasDashboard: [], // Aquí guardaremos las citas para mostrar en el dashboard (ej. las de hoy)
+  isLoadingDashboardCitas: false, // Estado de carga específico para el widget
+  errorDashboardCitas: null, 
 };
+
+export const fetchCitasParaDashboard = createAsyncThunk(
+  'citas/fetchCitasParaDashboard',
+  async (filtrosDashboard = {}, { rejectWithValue }) => {
+    // Ejemplo de filtrosDashboard: { fecha: 'YYYY-MM-DD' } para citas de un día específico
+    // o { fechaDesde: 'YYYY-MM-DDTHH:mm', limite: 5 } para próximas N citas
+    try {
+      const data = await citaService.getCitas(filtrosDashboard);
+      return data; // El servicio devuelve el array de citas que cumplen el filtro
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 export const fetchCitas = createAsyncThunk(
   'citas/fetchCitas',
@@ -76,6 +93,10 @@ const citaSlice = createSlice({
       .addCase(fetchCitas.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchCitasParaDashboard.fulfilled, (state, action) => {
+        state.isLoadingDashboardCitas = false;
+        state.citasDashboard = action.payload.sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));
       })
       .addCase(addNewCita.pending, (state) => {
         state.isLoading = true; // Podrías usar un isLoadingAdd específico

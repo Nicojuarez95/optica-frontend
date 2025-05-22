@@ -2,7 +2,9 @@ import { apiClient } from './api'; // Asegúrate que api.js exporte apiClient no
 
 const getCitas = async (filtros = {}) => {
   try {
+    // <--- VERIFICA ESTE LOG
     const response = await apiClient.get('/citas', { params: filtros });
+    
     if (response.data && response.data.success) {
       return response.data.citas;
     } else {

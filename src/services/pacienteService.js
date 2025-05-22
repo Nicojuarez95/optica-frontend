@@ -17,6 +17,19 @@ const getPacientes = async () => {
   }
 };
 
+const getPacientesCount = async () => {
+  try {
+    const response = await apiClient.get('/pacientes'); // Llama al mismo endpoint
+    if (response.data && response.data.success && response.data.count !== undefined) {
+      return response.data.count; // Devuelve solo el conteo
+    } else {
+      throw new Error(response.data.message || 'Error al obtener el conteo de pacientes');
+    }
+  } catch (error) {
+    throw new Error(error.message || 'Error de red o servidor al obtener el conteo de pacientes');
+  }
+};
+
 const getPacienteById = async (id) => {
   try {
     const response = await apiClient.get(`/pacientes/${id}`);
@@ -89,6 +102,7 @@ const pacienteService = {
   updatePaciente,
   deletePaciente,
   addPrescripcion,
+  getPacientesCount
 };
 
 export default pacienteService;

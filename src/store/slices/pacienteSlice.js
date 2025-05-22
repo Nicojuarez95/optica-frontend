@@ -6,7 +6,24 @@ const initialState = {
   pacienteSeleccionado: null,
   isLoading: false,
   error: null,
+  totalPacientes: 0,
+  isLoadingTotalPacientes: false, // Estado de carga específico
+  errorTotalPacientes: null, 
 };
+
+// --- NUEVO: Thunk para obtener el total de pacientes para el dashboard ---
+export const fetchTotalPacientesDashboard = createAsyncThunk(
+  'pacientes/fetchTotalPacientesDashboard',
+  async (_, { rejectWithValue }) => { // No necesita parámetros de entrada
+    try {
+      // Llama a la nueva función de servicio getPacientesCount
+      const count = await pacienteService.getPacientesCount(); 
+      return count; // Esperamos que esto sea el número del conteo
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 // Thunks Asíncronos - Asegúrate de que todos estos estén exportados
 export const fetchPacientes = createAsyncThunk(
@@ -86,15 +103,11 @@ const pacienteSlice = createSlice({
   name: 'pacientes',
   initialState,
   reducers: {
-    // Reducers síncronos (actions)
-    seleccionarPaciente: (state, action) => {
-      state.pacienteSeleccionado = action.payload;
-    },
-    limpiarPacienteSeleccionado: (state) => {
-      state.pacienteSeleccionado = null;
-    },
+    seleccionarPaciente: (state, action) => { state.pacienteSeleccionado = action.payload; },
+    limpiarPacienteSeleccionado: (state) => { state.pacienteSeleccionado = null; },
     clearPacientesError: (state) => {
       state.error = null;
+      state.errorTotalPacientes = null; // Limpiar también el error del dashboard
     }
   },
   extraReducers: (builder) => {
@@ -103,6 +116,10 @@ const pacienteSlice = createSlice({
       .addCase(fetchPacientes.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+      })
+      .addCase(fetchTotalPacientesDashboard.fulfilled, (state, action) => {
+        state.isLoadingTotalPacientes = false;
+        state.totalPacientes = action.payload;
       })
       .addCase(fetchPacientes.fulfilled, (state, action) => {
         state.isLoading = false;
