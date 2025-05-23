@@ -111,10 +111,16 @@ export default function DashboardHomePage() {
   // --- Componente Widget: Inventario (Stock Crítico) ---
   const InventarioWidget = () => {
     const itemsCriticos = useMemo(() => {
-      if (!itemsStockBajo) return [];
-      return itemsStockBajo.filter(item => 
-        item.stockActual === 0 || item.stockActual <= (item.stockMinimoAlerta / 2)
-      );
+        if (!itemsStockBajo) return [];
+        // CAMBIO DE LÓGICA: Ahora "crítico" es si el stock actual es <= al mínimo de alerta.
+        // Asumimos que 'itemsStockBajo' ya viene del backend con el filtro { alertaStock: true },
+        // que debería ser stockActual <= stockMinimoAlerta.
+        // Si ese es el caso, todos los items en 'itemsStockBajo' ya son "críticos" según esta nueva definición.
+        // Si 'itemsStockBajo' pudiera ser más amplio, el filtro aquí es necesario.
+        // Para estar seguros y explícitos:
+        return itemsStockBajo.filter(item => 
+            item.stockActual <= item.stockMinimoAlerta
+        );
     }, [itemsStockBajo]);
 
     return (
@@ -150,12 +156,13 @@ export default function DashboardHomePage() {
 
   // --- Componente Widget: Estadísticas ---
   const EstadisticasWidget = () => {
-     const itemsCriticosParaConteo = useMemo(() => {
+    const itemsCriticosParaConteo = useMemo(() => {
         if (!itemsStockBajo) return [];
+        // CAMBIO DE LÓGICA: Coincide con la de InventarioWidget
         return itemsStockBajo.filter(item => 
-          item.stockActual === 0 || item.stockActual <= (item.stockMinimoAlerta / 2)
+            item.stockActual <= item.stockMinimoAlerta
         );
-      }, [itemsStockBajo]);
+    }, [itemsStockBajo]);
 
     return (
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg h-full flex flex-col">

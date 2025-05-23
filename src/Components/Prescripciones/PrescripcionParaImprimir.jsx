@@ -1,9 +1,9 @@
 import React from 'react';
+import { formatDisplayDateFromString } from '../../Utils/dateUtils';
 
 // Componente interno para una sección de la prescripción (Copia Paciente / Copia Óptica)
 const SeccionPrescripcionImprimible = ({ prescripcion, paciente, infoEncabezadoPDF, opticoFirmantePDF, tipoCopia }) => {
-    const fechaFormateada = prescripcion.fecha ? new Date(prescripcion.fecha).toLocaleDateString('es-AR', { /*...*/ }) : 'N/A';
-    
+    const fechaFormateada = formatDisplayDateFromString(prescripcion.fecha);
     // Asegurarse de que los datos financieros se muestren correctamente
     const subtotal = parseFloat(prescripcion.subtotal) || 0;
     const descuentoPorcentaje = parseFloat(prescripcion.descuentoPorcentaje) || 0;

@@ -15,6 +15,7 @@ import DetallePaciente from './DetallePaciente';
 import Spinner from '../Common/Spinner';
 import Modal from '../Common/ModalControlado.jsx';
 import { PlusCircle, UserSearch, Edit3, Trash2, UserX, Eye as ViewIcon, AlertTriangle, Users as UsersIcon } from 'lucide-react';
+import { formatDisplayDateFromString } from '../../Utils/dateUtils.js'; 
 
 export default function GestionPacientes() {
   const dispatch = useDispatch();
@@ -186,7 +187,7 @@ export default function GestionPacientes() {
                       <h3 className={`text-lg font-semibold ${pacienteSeleccionado?._id === paciente._id ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-800 dark:text-white'}`}>{paciente.nombreCompleto}</h3>
                       <p className="text-sm text-gray-600 dark:text-slate-300">{paciente.telefono || 'Sin teléfono'}</p>
                       <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                        Última visita: {paciente.ultimaVisita ? new Date(paciente.ultimaVisita).toLocaleDateString() : 'N/A'}
+                          Última visita: {formatDisplayDateFromString(paciente.ultimaVisita)}
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1.5 mt-1 sm:mt-0 flex-shrink-0"> {/* Ajuste para botones */}

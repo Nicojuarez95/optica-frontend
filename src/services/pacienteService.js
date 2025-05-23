@@ -3,11 +3,11 @@ import { apiClient } from './api'; // Asegúrate de que api.js exista en src/ser
 const getPacientes = async () => {
   try {
     const response = await apiClient.get('/pacientes');
-    // El backend devuelve { success: true, count: X, pacientes: [...] }
+    console.log("SERVICE getPacientesCount - response.data:", response.data); // <--- LOG AQUÍ
     if (response.data && response.data.success) {
       return response.data.pacientes;
     } else {
-      // Si success es false o no viene, lanzar error con el mensaje del backend
+      console.error("Respuesta del backend no tiene 'count' o 'success' es false:", response.data);
       throw new Error(response.data.message || 'Error al obtener pacientes desde el servicio');
     }
   } catch (error) {
@@ -19,14 +19,17 @@ const getPacientes = async () => {
 
 const getPacientesCount = async () => {
   try {
-    const response = await apiClient.get('/pacientes'); // Llama al mismo endpoint
+    const response = await apiClient.get('/pacientes'); // Llama al mismo endpoint que getPacientes
+    console.log("SERVICE getPacientesCount - response.data:", response.data); // <--- LOG IMPORTANTE
     if (response.data && response.data.success && response.data.count !== undefined) {
       return response.data.count; // Devuelve solo el conteo
     } else {
-      throw new Error(response.data.message || 'Error al obtener el conteo de pacientes');
+      console.error("SERVICE getPacientesCount: Respuesta del backend no tiene 'count' o 'success' es false:", response.data);
+      throw new Error(response.data?.message || 'Error al obtener el conteo de pacientes');
     }
   } catch (error) {
-    throw new Error(error.message || 'Error de red o servidor al obtener el conteo de pacientes');
+    console.error("SERVICE getPacientesCount - Error en la llamada:", error);
+    throw new Error(error.response?.data?.message || error.message || 'Error de red o servidor al obtener el conteo de pacientes');
   }
 };
 
@@ -117,6 +120,7 @@ const pacienteService = {
     updatePaciente,
     deletePaciente,
     addPrescripcion,
+    getPacientesCount,
     deletePrescripcionPaciente, // <-- AÑADE LA NUEVA FUNCIÓN
 };
 

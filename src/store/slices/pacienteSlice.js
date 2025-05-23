@@ -155,10 +155,11 @@ const pacienteSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload;
             })
-      .addCase(fetchTotalPacientesDashboard.fulfilled, (state, action) => {
-        state.isLoadingTotalPacientes = false;
-        state.totalPacientes = action.payload;
-      })
+            .addCase(fetchTotalPacientesDashboard.fulfilled, (state, action) => {
+              state.isLoadingTotalPacientes = false;
+              console.log("SLICE fetchTotalPacientesDashboard.fulfilled - Payload (count):", action.payload); // <--- LOG AQUÍ
+              state.totalPacientes = action.payload; 
+          })
       .addCase(fetchPacientes.fulfilled, (state, action) => {
         state.isLoading = false;
         state.pacientes = action.payload;

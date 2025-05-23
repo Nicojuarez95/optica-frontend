@@ -5,17 +5,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     X, Edit3, PlusCircle, ChevronDown, ChevronUp, FileText,
     CalendarDays, Phone, Mail, MapPin, Briefcase, Stethoscope, StickyNote, Printer,
-    Trash2, // <--- AÑADIDO para el icono de eliminar
-    AlertTriangle // <--- AÑADIDO para el modal de confirmación
+    Trash2, AlertTriangle
 } from 'lucide-react';
-// Asegúrate de importar el thunk correcto para eliminar prescripciones
 import { addNewPrescripcion, deletePrescripcionHistorial } from '../../store/slices/pacienteSlice';
 import Spinner from '../Common/Spinner';
 import Modal from '../Common/ModalControlado';
-import { generarPdfPrescripcion } from '../../Utils/generacionPdf'; // Ajusta la ruta si es necesario
+import { generarPdfPrescripcion } from '../../Utils/generacionPdf'; // Ajusta la ruta si es diferente
+import { formatDisplayDateFromString } from '../../Utils/dateUtils'; // <-- IMPORTANTE: Importa la función de formato
+
+// --- Componente InfoItem ---
+const InfoItem = ({ icon, label, value, isBlock = false }) => (
+    <div className={`flex items-start ${isBlock ? 'flex-col items-start w-full' : 'mb-2'}`}>
+      {React.cloneElement(icon, { size: 16, className: "text-indigo-500 dark:text-indigo-400 mr-2 mt-1 flex-shrink-0" })}
+      <div className="flex flex-col">
+        <span className="text-xs text-gray-500 dark:text-slate-400">{label}</span>
+        <span className="text-sm text-gray-800 dark:text-slate-200 break-words">{value || 'N/A'}</span>
+      </div>
+    </div>
+);
 
 // --- FormularioPrescripcion ---
-// (Pega aquí el código completo del FormularioPrescripcion que ya tienes y funciona)
 const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp }) => {
     const dispatch = useDispatch();
     const { user: opticoLogueado } = useSelector(state => state.auth);
@@ -23,7 +32,7 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
     const actualLoading = isLoadingProp || isLoadingPacienteSliceOp;
 
     const [formData, setFormData] = useState({
-        fecha: new Date().toISOString().split('T')[0],
+        fecha: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
         optometristaResponsable: '',
         diagnostico: '',
         graduacionOD_Esfera: '', graduacionOD_Cilindro: '', graduacionOD_Eje: '',
@@ -94,12 +103,13 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
         e.preventDefault();
         if (validatePrescripcion()) {
             const prescripcionDataToSend = {
-                ...formData,
+                ...formData, // formData.fecha ya es YYYY-MM-DD string
                 subtotal: parseFloat(formData.subtotal) || 0,
                 descuentoPorcentaje: parseFloat(formData.descuentoPorcentaje) || 0,
                 montoEntregado: parseFloat(formData.montoEntregado) || 0,
                 optometristaResponsable: formData.optometristaResponsable || opticoLogueado?.nombre || opticoLogueado?.name || '',
             };
+            // console.log("Datos a enviar al backend (prescripción):", prescripcionDataToSend);
             const resultado = await dispatch(addNewPrescripcion({ pacienteId, prescripcionData: prescripcionDataToSend }));
             if (resultado.meta.requestStatus === 'fulfilled') {
                 onClose();
@@ -234,17 +244,6 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
     );
 };
 
-// --- Componente InfoItem (sin cambios) ---
-const InfoItem = ({ icon, label, value, isBlock = false }) => (
-    <div className={`flex items-start ${isBlock ? 'flex-col items-start w-full' : 'mb-2'}`}>
-      {React.cloneElement(icon, { size: 16, className: "text-indigo-500 dark:text-indigo-400 mr-2 mt-1 flex-shrink-0" })}
-      <div className="flex flex-col">
-        <span className="text-xs text-gray-500 dark:text-slate-400">{label}</span>
-        <span className="text-sm text-gray-800 dark:text-slate-200 break-words">{value || 'N/A'}</span>
-      </div>
-    </div>
-);
-
 
 // --- Componente Principal: DetallePaciente ---
 export default function DetallePaciente({ paciente, onClose, onEdit }) {
@@ -254,7 +253,6 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
     const { isLoading, error } = useSelector(state => state.pacientes);
     const { user: opticoLogueado } = useSelector(state => state.auth);
 
-    // --- NUEVO: Estados para el modal de confirmación de eliminación ---
     const [showDeletePrescModal, setShowDeletePrescModal] = useState(false);
     const [prescripcionAEliminar, setPrescripcionAEliminar] = useState(null);
 
@@ -267,6 +265,7 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
     const handleImprimirPrescripcion = useCallback(async (prescripcionAImprimir) => {
         if (!paciente || !prescripcionAImprimir || !opticoParaImpresion) {
             alert("Faltan datos esenciales para generar el PDF de la prescripción.");
+            console.error("Datos faltantes para PDF:", { paciente, prescripcionAImprimir, opticoLogueado });
             return;
         }
         try {
@@ -274,9 +273,8 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
         } catch (e) {
             console.error("Error al intentar generar PDF desde DetallePaciente:", e);
         }
-    }, [paciente, opticoParaImpresion]);
+    }, [paciente, opticoParaImpresion, opticoLogueado]); // Añadido opticoLogueado como dependencia
 
-    // --- NUEVO: Funciones para manejar la eliminación de prescripción ---
     const abrirModalEliminarPrescripcion = (prescripcion) => {
         setPrescripcionAEliminar(prescripcion);
         setShowDeletePrescModal(true);
@@ -284,21 +282,14 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
 
     const confirmarEliminarPrescripcion = async () => {
         if (prescripcionAEliminar && paciente) {
-          console.log("Eliminando prescripción - Paciente ID:", paciente._id, "Prescripción ID:", prescripcionAEliminar._id);
+            // console.log("Eliminando prescripción - Paciente ID:", paciente._id, "Prescripción ID:", prescripcionAEliminar._id);
             const resultado = await dispatch(deletePrescripcionHistorial({ 
                 pacienteId: paciente._id, 
                 prescripcionId: prescripcionAEliminar._id 
             }));
-            // El slice ya maneja el isLoading, así que el botón se actualizará.
-            // El slice también actualiza la lista de prescripciones.
             if (resultado.meta.requestStatus === 'fulfilled') {
                 setShowDeletePrescModal(false);
                 setPrescripcionAEliminar(null);
-                // Podrías añadir una notificación de éxito aquí si quieres
-            } else {
-                // El error ya se muestra a través del estado 'error' del slice,
-                // o podrías manejar 'resultado.payload' para errores específicos aquí.
-                // Por ahora, el modal de confirmación muestra el error general del slice.
             }
         }
     };
@@ -312,10 +303,13 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
         );
     }
     
+    // console.log("DETALLE PACIENTE - paciente.ultimaVisita RAW:", paciente.ultimaVisita);
+    // console.log("DETALLE PACIENTE - paciente.fechaNacimiento RAW:", paciente.fechaNacimiento);
+    
     const toggleHistorial = () => setHistorialVisible(!historialVisible);
 
     return (
-        <div className="p-5 h-full flex flex-col bg-white dark:bg-slate-800 rounded-r-xl md:rounded-xl">
+        <div className="p-5 h-full flex flex-col bg-white dark:bg-slate-800 rounded-r-xl md:rounded-xl shadow-xl">
             {/* Cabecera del Detalle */}
             <div className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-slate-700 mb-4">
                 <h2 className="text-xl font-bold text-indigo-700 dark:text-indigo-300 truncate" title={paciente.nombreCompleto}>
@@ -332,14 +326,24 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
             </div>
 
             {/* Contenido del Detalle (Scrollable) */}
-            <div className="flex-grow overflow-y-auto space-y-5 pr-1 text-sm">
+            <div className="flex-grow overflow-y-auto space-y-5 pr-1 text-sm custom-scrollbar"> {/* Añadido custom-scrollbar */}
                 {/* Información del Paciente */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                     <InfoItem icon={<Phone />} label="Teléfono" value={paciente.telefono} />
                     <InfoItem icon={<Mail />} label="Email" value={paciente.email} />
-                    <InfoItem icon={<CalendarDays />} label="Fecha de Nacimiento" value={paciente.fechaNacimiento ? new Date(paciente.fechaNacimiento).toLocaleDateString('es-AR') : 'N/A'} />
+                    <InfoItem 
+                        icon={<CalendarDays />} 
+                        label="Fecha de Nacimiento" 
+                        value={formatDisplayDateFromString(paciente.fechaNacimiento)} 
+                    />
                     <InfoItem icon={<Briefcase />} label="Ocupación" value={paciente.ocupacion} />
                 </div>
+                <InfoItem 
+                    icon={<CalendarDays />} 
+                    label="Última Visita" 
+                    value={formatDisplayDateFromString(paciente.ultimaVisita)} 
+                    isBlock 
+                />
                 <InfoItem icon={<MapPin />} label="Dirección" value={paciente.direccion} isBlock />
                 <InfoItem icon={<Stethoscope />} label="Antecedentes Médicos" value={paciente.antecedentesMedicos} isBlock />
                 <InfoItem icon={<StickyNote />} label="Notas Adicionales" value={paciente.notasAdicionales} isBlock />
@@ -358,16 +362,15 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
 
                     {historialVisible && (
                         paciente.historialPrescripciones && paciente.historialPrescripciones.length > 0 ? (
-                            <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                            <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar-thumb"> {/* Añadido custom-scrollbar-thumb */}
                                 {paciente.historialPrescripciones.slice().sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).map((item) => (
-                                    <div key={item._id} className="p-3 bg-gray-50 dark:bg-slate-700/60 rounded-lg border border-gray-200 dark:border-slate-600 text-xs">
+                                    <div key={item._id} className="p-3 bg-gray-50 dark:bg-slate-700/60 rounded-lg border border-gray-200 dark:border-slate-600 text-xs shadow hover:shadow-md transition-shadow">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <p className="font-semibold text-gray-700 dark:text-slate-200">Fecha: {new Date(item.fecha).toLocaleDateString('es-AR')}</p>
+                                                <p className="font-semibold text-gray-700 dark:text-slate-200">Fecha: {formatDisplayDateFromString(item.fecha)}</p>
                                                 {item.optometristaResponsable && <p className="text-gray-600 dark:text-slate-300">Opt.: {item.optometristaResponsable}</p>}
                                                 <p className="text-gray-600 dark:text-slate-300">Dx: <span className="font-medium">{item.diagnostico}</span></p>
                                             </div>
-                                            {/* --- BOTONES DE ACCIÓN PARA CADA PRESCRIPCIÓN --- */}
                                             <div className="flex space-x-1">
                                                 <button 
                                                     onClick={() => handleImprimirPrescripcion(item)}
@@ -395,7 +398,7 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
                                             {item.adicion && <p className="text-gray-600 dark:text-slate-300">Adición: {item.adicion}</p>}
                                             {item.dp && <p className="text-gray-600 dark:text-slate-300">DP: {item.dp} mm</p>}
                                         </div>
-                                        {(item.subtotal !== undefined ) && ( // Mostrar sección financiera si hay subtotal (incluso si es 0)
+                                        {(item.subtotal !== undefined) && ( 
                                             <div className="mt-2 border-t border-gray-200 dark:border-slate-600 pt-1 text-gray-500 dark:text-slate-400">
                                                 <p>Conceptos: {item.descripcionConceptos || 'N/A'}</p>
                                                 <p>Subtotal: ${parseFloat(item.subtotal)?.toFixed(2)} | Dcto: {item.descuentoPorcentaje || 0}% (-${parseFloat(item.montoDescuento)?.toFixed(2)})</p>
@@ -429,22 +432,21 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
                 </Modal>
             )}
 
-            {/* --- NUEVO: Modal de Confirmación para Eliminar Prescripción --- */}
+            {/* Modal de Confirmación para Eliminar Prescripción */}
             {showDeletePrescModal && prescripcionAEliminar && (
                 <Modal
                     isOpen={showDeletePrescModal}
                     onClose={() => { setShowDeletePrescModal(false); setPrescripcionAEliminar(null); }}
                     title="Confirmar Eliminación de Prescripción"
                     titleIcon={<AlertTriangle size={20} className="text-red-500" />}
-                    size="max-w-md" // Tamaño del modal
+                    size="max-w-md"
                 >
                     <p className="text-sm text-gray-700 dark:text-slate-300 mb-4">
                         ¿Estás seguro de que deseas eliminar la prescripción del paciente 
                         <strong className="font-semibold"> {paciente.nombreCompleto} </strong> 
-                        con fecha <strong className="font-semibold">{new Date(prescripcionAEliminar.fecha).toLocaleDateString('es-AR')}</strong>?
+                        con fecha <strong className="font-semibold">{formatDisplayDateFromString(prescripcionAEliminar.fecha)}</strong>?
                         Esta acción no se puede deshacer.
                     </p>
-                    {/* Mostrar error específico de la operación de borrado si existe */}
                     {error && prescripcionAEliminar && <p className="text-xs text-red-500 mb-3">Error: {typeof error === 'object' ? JSON.stringify(error) : error}</p>}
                     <div className="flex justify-end space-x-3">
                         <button
@@ -455,7 +457,7 @@ export default function DetallePaciente({ paciente, onClose, onEdit }) {
                         </button>
                         <button
                             onClick={confirmarEliminarPrescripcion}
-                            disabled={isLoading} // Usar el isLoading general del slice de pacientes
+                            disabled={isLoading}
                             className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md disabled:opacity-70 flex items-center"
                         >
                             {isLoading && prescripcionAEliminar ? <Spinner size="h-4 w-4" color="border-white mr-2"/> : null}

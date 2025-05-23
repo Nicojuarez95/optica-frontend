@@ -4,15 +4,15 @@ export default function FormularioPacienteUltraSimple({ pacienteInicial, onGuard
   const [nombreCompleto, setNombreCompleto] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
-  const [fechaNacimiento, setFechaNacimiento] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState(''); // Se maneja como YYYY-MM-DD string
   const [direccion, setDireccion] = useState('');
   const [ocupacion, setOcupacion] = useState('');
   const [antecedentesMedicos, setAntecedentesMedicos] = useState('');
-  const [ultimaVisita, setUltimaVisita] = useState('');
+  const [ultimaVisita, setUltimaVisita] = useState(''); // Se maneja como YYYY-MM-DD string
   const [notasAdicionales, setNotasAdicionales] = useState('');
 
   const [errorNombre, setErrorNombre] = useState('');
-  const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 dark:text-white";
+  const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 dark:text-white text-sm"; // Aumentado un poco el text-sm
   const labelClass = "block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1";
 
   useEffect(() => {
@@ -20,13 +20,16 @@ export default function FormularioPacienteUltraSimple({ pacienteInicial, onGuard
       setNombreCompleto(pacienteInicial.nombreCompleto || '');
       setTelefono(pacienteInicial.telefono || '');
       setEmail(pacienteInicial.email || '');
-      setFechaNacimiento(pacienteInicial.fechaNacimiento?.slice(0, 10) || '');
+      // Si fechaNacimiento viene como ISO string del backend, tomar solo la parte YYYY-MM-DD
+      setFechaNacimiento(pacienteInicial.fechaNacimiento ? pacienteInicial.fechaNacimiento.toString().slice(0, 10) : '');
       setDireccion(pacienteInicial.direccion || '');
       setOcupacion(pacienteInicial.ocupacion || '');
       setAntecedentesMedicos(pacienteInicial.antecedentesMedicos || '');
-      setUltimaVisita(pacienteInicial.ultimaVisita?.slice(0, 10) || '');
+      // Si ultimaVisita viene como ISO string del backend y la quieres como YYYY-MM-DD en el input
+      setUltimaVisita(pacienteInicial.ultimaVisita ? pacienteInicial.ultimaVisita.toString().slice(0, 10) : '');
       setNotasAdicionales(pacienteInicial.notasAdicionales || '');
     } else {
+      // Resetear formulario
       setNombreCompleto('');
       setTelefono('');
       setEmail('');
@@ -47,21 +50,26 @@ export default function FormularioPacienteUltraSimple({ pacienteInicial, onGuard
       return;
     }
 
-    const nuevoPaciente = {
+    const datosDelPaciente = {
       nombreCompleto,
       telefono,
       email,
-      fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : null,
+      fechaNacimiento: fechaNacimiento || null, 
       direccion,
       ocupacion,
       antecedentesMedicos,
-      ultimaVisita: ultimaVisita ? new Date(ultimaVisita) : null,
+      // Asegúrate que 'ultimaVisita' aquí sea el string YYYY-MM-DD del estado
+      ultimaVisita: ultimaVisita || null, 
       notasAdicionales,
     };
 
+    // LOG CRUCIAL
+    console.log("FRONTEND: handleSubmit - Enviando datosDelPaciente.ultimaVisita:", datosDelPaciente.ultimaVisita);
+    console.log("FRONTEND: handleSubmit - typeof datosDelPaciente.ultimaVisita:", typeof datosDelPaciente.ultimaVisita);
+
     setErrorNombre('');
-    onGuardar(nuevoPaciente);
-  };
+    onGuardar(datosDelPaciente); 
+};
 
   return (
     <div className="p-4 my-4 border rounded-md dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
@@ -91,7 +99,16 @@ export default function FormularioPacienteUltraSimple({ pacienteInicial, onGuard
         {/* Fecha de nacimiento */}
         <div>
           <label htmlFor="fechaNacimiento" className={labelClass}>Fecha de Nacimiento</label>
-          <input id="fechaNacimiento" type="date" value={fechaNacimiento} onChange={(e) => setFechaNacimiento(e.target.value)} className={inputClass} />
+          <input 
+            id="fechaNacimiento" 
+            type="date" 
+            value={fechaNacimiento} // Espera YYYY-MM-DD
+            onChange={(e) => {
+                console.log("FORMULARIO PACIENTE - Input fechaNacimiento e.target.value:", e.target.value);
+                setFechaNacimiento(e.target.value);
+            }} 
+            className={inputClass} 
+          />
         </div>
 
         {/* Dirección */}
@@ -115,7 +132,18 @@ export default function FormularioPacienteUltraSimple({ pacienteInicial, onGuard
         {/* Última visita */}
         <div>
           <label htmlFor="ultimaVisita" className={labelClass}>Última Visita</label>
-          <input id="ultimaVisita" type="date" value={ultimaVisita} onChange={(e) => setUltimaVisita(e.target.value)} className={inputClass} />
+          <input 
+            id="ultimaVisita" 
+            type="date" 
+            value={ultimaVisita} // Espera YYYY-MM-DD
+            onChange={(e) => {
+                const valorDelInput = e.target.value;
+                console.log("FORMULARIO PACIENTE - Input ultimaVisita e.target.value:", valorDelInput);
+                console.log("FORMULARIO PACIENTE - Input ultimaVisita typeof e.target.value:", typeof valorDelInput);
+                setUltimaVisita(valorDelInput);
+            }} 
+            className={inputClass} 
+          />
         </div>
 
         {/* Notas adicionales */}
