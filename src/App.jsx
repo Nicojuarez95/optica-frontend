@@ -7,6 +7,7 @@ function App() {
     return (
       <Provider store={store}>
           <RouterProvider router={router}/>
+          <div id="elemento-para-imprimir-prescripcion" style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '210mm', background: 'white', color: 'black' }}></div>
       </Provider>
     );
 }

@@ -95,14 +95,29 @@ const addPrescripcion = async (pacienteId, prescripcionData) => {
   }
 };
 
+const deletePrescripcionPaciente = async (pacienteId, prescripcionId) => {
+    try {
+        console.log("SERVICE: deletePrescripcionPaciente - pacienteId:", pacienteId, "prescripcionId:", prescripcionId);
+        const response = await apiClient.delete(`/pacientes/${pacienteId}/prescripciones/${prescripcionId}`);
+        if (response.data && response.data.success) {
+            // Devuelve los IDs para facilitar la actualización en Redux
+            return { pacienteId, prescripcionId }; 
+        } else {
+            throw new Error(response.data.message || 'Error al eliminar la prescripción desde el servicio');
+        }
+    } catch (error) {
+        throw new Error(error.response?.data?.message || error.message || 'Error de red o servidor al eliminar la prescripción');
+    }
+};
+
 const pacienteService = {
-  getPacientes,
-  getPacienteById,
-  createPaciente,
-  updatePaciente,
-  deletePaciente,
-  addPrescripcion,
-  getPacientesCount
+    getPacientes,
+    getPacienteById,
+    createPaciente,
+    updatePaciente,
+    deletePaciente,
+    addPrescripcion,
+    deletePrescripcionPaciente, // <-- AÑADE LA NUEVA FUNCIÓN
 };
 
 export default pacienteService;

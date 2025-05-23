@@ -99,6 +99,19 @@ export const addNewPrescripcion = createAsyncThunk(
   }
 );
 
+export const deletePrescripcionHistorial = createAsyncThunk(
+    'pacientes/deletePrescripcionHistorial',
+    async ({ pacienteId, prescripcionId }, { rejectWithValue }) => {
+        try {
+            console.log("SLICE: deletePrescripcionHistorial - pacienteId:", pacienteId, "prescripcionId:", prescripcionId); // <--- VERIFICA ESTE LOG
+            const data = await pacienteService.deletePrescripcionPaciente(pacienteId, prescripcionId);
+            return data; 
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const pacienteSlice = createSlice({
   name: 'pacientes',
   initialState,
@@ -117,6 +130,31 @@ const pacienteSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
+      .addCase(deletePrescripcionHistorial.pending, (state) => {
+                state.isLoading = true; // O un isLoadingDeletePrescripcion específico
+                state.error = null;
+            })
+            .addCase(deletePrescripcionHistorial.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const { pacienteId, prescripcionId } = action.payload;
+
+                // Actualizar el paciente en la lista de pacientes (si es necesario)
+                const pacienteIndex = state.pacientes.findIndex(p => p._id === pacienteId);
+                if (pacienteIndex !== -1) {
+                    state.pacientes[pacienteIndex].historialPrescripciones = 
+                        state.pacientes[pacienteIndex].historialPrescripciones.filter(presc => presc._id !== prescripcionId);
+                }
+
+                // Actualizar el pacienteSeleccionado si es el mismo
+                if (state.pacienteSeleccionado && state.pacienteSeleccionado._id === pacienteId) {
+                    state.pacienteSeleccionado.historialPrescripciones = 
+                        state.pacienteSeleccionado.historialPrescripciones.filter(presc => presc._id !== prescripcionId);
+                }
+            })
+            .addCase(deletePrescripcionHistorial.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
       .addCase(fetchTotalPacientesDashboard.fulfilled, (state, action) => {
         state.isLoadingTotalPacientes = false;
         state.totalPacientes = action.payload;
@@ -211,11 +249,10 @@ const pacienteSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       });
+      
   },
 });
 
 // Exportar las actions síncronas generadas por createSlice
 export const { seleccionarPaciente, limpiarPacienteSeleccionado, clearPacientesError } = pacienteSlice.actions;
-
-// Exportar el reducer como default
 export default pacienteSlice.reducer;
