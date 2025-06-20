@@ -55,18 +55,6 @@ export default function GestionPacientes() {
     } else {
       resultadoAccion = await dispatch(addNewPaciente(datosPaciente));
     }
-
-    // unwrap() puede ser útil para manejar el resultado de createAsyncThunk directamente
-    // y capturar errores si es necesario aquí, o confiar en el estado 'error' del slice.
-    // Por ejemplo:
-    // try {
-    //   const resultado = await resultadoAccion.unwrap();
-    //   handleCerrarFormulario();
-    // } catch (err) {
-    //   // El error ya debería estar en el estado 'error' del slice
-    //   console.error('Error al guardar paciente:', err);
-    // }
-
     if (resultadoAccion.meta.requestStatus === 'fulfilled') {
       handleCerrarFormulario();
       // Opcional: seleccionar el paciente recién creado/editado
