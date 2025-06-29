@@ -231,7 +231,7 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
             </fieldset>
             
             <div className="mt-3">
-                <label htmlFor={`presc-observaciones-${pacienteId}`} className={labelClass}>Fecha prometida</label>
+                <label htmlFor={`presc-observaciones-${pacienteId}`} className={labelClass}>Fecha Prometida</label>
                 <textarea name="observaciones" id={`presc-observaciones-${pacienteId}`} rows="2" value={formData.observaciones} onChange={handleChange} className={inputClass}></textarea>
             </div>
             <div className="flex justify-end space-x-2 pt-3">
