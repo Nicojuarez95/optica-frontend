@@ -3,7 +3,7 @@ import { apiClient } from './api'; // Asegúrate de que api.js exista en src/ser
 const getPacientes = async () => {
   try {
     const response = await apiClient.get('/pacientes');
-    console.log("1 getPacientesCount - response.data:", response.data); // <--- LOG AQUÍ
+    console.log("SERVICE getPacientesCount - response.data:", response.data); // <--- LOG AQUÍ
     if (response.data && response.data.success) {
       return response.data.pacientes;
     } else {
@@ -19,13 +19,17 @@ const getPacientes = async () => {
 
 const getPacientesCount = async () => {
   try {
-    const response = await apiClient.get('/pacientes/count'); // Endpoint eficiente
-    if (response.data && response.data.success) {
-      return response.data.count;
+    const response = await apiClient.get('/pacientes'); // Llama al mismo endpoint que getPacientes
+    console.log("SERVICE getPacientesCount - response.data:", response.data); // <--- LOG IMPORTANTE
+    if (response.data && response.data.success && response.data.count !== undefined) {
+      return response.data.count; // Devuelve solo el conteo
+    } else {
+      console.error("SERVICE getPacientesCount: Respuesta del backend no tiene 'count' o 'success' es false:", response.data);
+      throw new Error(response.data?.message || 'Error al obtener el conteo de pacientes');
     }
-    throw new Error('Respuesta inválida para el conteo');
   } catch (error) {
-    throw new Error(error.message || 'Error al obtener el conteo');
+    console.error("SERVICE getPacientesCount - Error en la llamada:", error);
+    throw new Error(error.response?.data?.message || error.message || 'Error de red o servidor al obtener el conteo de pacientes');
   }
 };
 
