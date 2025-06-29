@@ -85,7 +85,6 @@ console.log("Renderizando PrescripcionParaImprimir", { paciente, prescripcion })
   );
 };
 
-
 const PrescripcionParaImprimir = React.forwardRef(({ prescripcion, paciente, opticaInfo, optico }, ref) => {
   if (!prescripcion || !paciente || !opticaInfo || !optico) {
     return <p ref={ref} style={{ color: 'red' }}>Faltan datos esenciales para la prescripción.</p>;
