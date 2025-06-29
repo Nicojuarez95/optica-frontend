@@ -101,12 +101,12 @@ const PrescripcionParaImprimir = React.forwardRef(({ prescripcion, paciente, opt
 
   const estiloCopiaPaciente = {
     ...contenedorEstiloBase,
-    height: '8cm'
+    height: '7cm'
   };
 
   const estiloCopiaOptica = {
     ...contenedorEstiloBase,
-    height: '20cm'
+    height: '21cm'
   };
 
   return (
