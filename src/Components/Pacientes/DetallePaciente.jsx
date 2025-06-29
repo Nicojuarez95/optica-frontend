@@ -1,5 +1,3 @@
-// src/Components/Pacientes/DetallePaciente.jsx
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -80,6 +78,8 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
 
     const validatePrescripcion = () => {
         const newErrors = {};
+        const totalNetoNum = parseFloat(calculosFinancieros.totalNeto);
+
         if (!formData.diagnostico.trim()) newErrors.diagnostico = 'El diagnóstico es obligatorio.';
         if (!formData.descripcionConceptos.trim()) newErrors.descripcionConceptos = 'La descripción de conceptos es obligatoria.';
         if (formData.subtotal.trim() === '' || isNaN(parseFloat(formData.subtotal)) || parseFloat(formData.subtotal) < 0) {
@@ -91,10 +91,15 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
         if (formData.montoEntregado.trim() !== '' && (isNaN(parseFloat(formData.montoEntregado)) || parseFloat(formData.montoEntregado) < 0)) {
             newErrors.montoEntregado = 'El monto entregado debe ser un número positivo.';
         }
-        const totalNetoNum = parseFloat(calculosFinancieros.totalNeto);
+        if (!formData.numeroComprobante.trim()) {
+            newErrors.numeroComprobante = 'El número de comprobante es obligatorio.';
+        } else if (!/^[\dA-Za-z\-]+$/.test(formData.numeroComprobante.trim())) {
+            newErrors.numeroComprobante = 'Número de comprobante inválido.';
+        }
         if (parseFloat(formData.montoEntregado) > totalNetoNum) {
             newErrors.montoEntregado = `El monto entregado no puede ser mayor al Total Neto ($${totalNetoNum.toFixed(2)}).`;
         }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -177,7 +182,7 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
             <fieldset className="border border-slate-300 dark:border-slate-600 p-2 rounded-md mt-4">
                 <legend className="text-xs font-medium px-1 text-gray-700 dark:text-slate-300">Detalles Financieros</legend>
                 <div className="mt-1">
-                    <label htmlFor={`presc-numeroComprobante-${pacienteId}`} className={labelClass}>N° Comprobante/Boleta (Opcional)</label>
+                    <label htmlFor={`presc-numeroComprobante-${pacienteId}`} className={labelClass}>N° Comprobante/Boleta*</label>
                     <input type="text" name="numeroComprobante" id={`presc-numeroComprobante-${pacienteId}`} value={formData.numeroComprobante} onChange={handleChange} className={inputClass} />
                      {errors.numeroComprobante && <p className="text-xs text-red-500 mt-1">{errors.numeroComprobante}</p>}
                 </div>
@@ -226,7 +231,7 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
             </fieldset>
             
             <div className="mt-3">
-                <label htmlFor={`presc-observaciones-${pacienteId}`} className={labelClass}>Observaciones Adicionales</label>
+                <label htmlFor={`presc-observaciones-${pacienteId}`} className={labelClass}>Fecha prometida</label>
                 <textarea name="observaciones" id={`presc-observaciones-${pacienteId}`} rows="2" value={formData.observaciones} onChange={handleChange} className={inputClass}></textarea>
             </div>
             <div className="flex justify-end space-x-2 pt-3">

@@ -62,7 +62,7 @@ export default function GestionCitasControlado() {
     if (!pacientes || pacientes.length === 0) {
         dispatch(fetchPacientes());
     }
-  }, [dispatch, filtroPaciente, filtroEstado, filtroFechaDesde, filtroFechaHasta, pacientes]);
+  }, [dispatch, filtroPaciente, filtroEstado, filtroFechaDesde, filtroFechaHasta]);
 
   useEffect(() => {
     cargarDatos();
