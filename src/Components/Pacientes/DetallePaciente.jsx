@@ -104,6 +104,7 @@ const FormularioPrescripcion = ({ pacienteId, onClose, isLoading: isLoadingProp 
         return Object.keys(newErrors).length === 0;
     };
 
+    
     const handleSubmitPrescripcion = async (e) => {
         e.preventDefault();
         if (validatePrescripcion()) {
